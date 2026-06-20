@@ -1,7 +1,5 @@
-# 📊 Live Interactive Dashboard : 
+# 📊 Live Interactive Dashboard : https://raishaldhawan23.github.io/Retail-Sales-Intelligence-Dashboard-Power-BI-DAX-Star-Schema-Modelling/
 Click the link above to open the fully interactive Power BI report where you can click filters, slicers, and explore the live metrics.
-
-
 
 
 # Retail-Sales-Intelligence-Dashboard-Power-BI-DAX-Star-Schema-Modelling
