@@ -227,6 +227,37 @@ This resulted in:
 
 Instead of removing these records, they were deliberately retained to expose a real business data quality issue.
 
+## 🛠️ Deep-Dive: Technical Implementation & DAX Reasoning
+
+### 1. Dynamic Currency Conversion & ETL Pipeline
+Managing multiple international currencies required a strict ETL strategy in Power Query. Transaction currencies were dynamically normalized to a standardized reporting currency. 
+* **Data Cleaning:** Removed duplicated rows in transaction history, unpivoted columns where necessary to normalize schemas, and strictly defined data types to prevent floating-point calculation errors in DAX.
+
+### 2. Advanced Time Intelligence
+To ensure calculations like Year-to-Date (YTD) and Year-over-Year (YoY) growth function reliably, a dedicated, marked `Date` dimension table was generated. This prevents the common Power BI pitfall of relying on built-in automatic date hierarchies, which bloat model size and restrict custom fiscal calendar reporting.
+
+### 3. Core DAX Measures Showcase
+To maintain dashboard speed and memory optimization, implicit measures were avoided. Instead, explicit DAX measures were written using best-practice formatting:
+
+```dax
+Total Revenue = 
+SUMX(
+    OrderRows, 
+    OrderRows[Quantity] * RELATED(Product[UnitPrice])
+)
+```
+
+```dax
+YoY Growth (Latest) = 
+VAR CurrentYear = MAX('date'[Year])
+VAR PrevYear = CurrentYear - 1
+VAR RevenueCY = CALCULATE([Total Revenue], 'date'[Year] = CurrentYear)
+VAR RevenuePY = CALCULATE([Total Revenue], 'date'[Year] = PrevYear)
+RETURN DIVIDE(RevenueCY - RevenuePY, RevenuePY)
+```
+* **Reasoning:** Using variables (`VAR`) caches the evaluation outputs, significantly speeding up the calculation engine (VertiPaq) when filtering large transactional matrices across continents.
+
+
 ## Tools and Analytical Capabilities
 Tools
 - Power BI
